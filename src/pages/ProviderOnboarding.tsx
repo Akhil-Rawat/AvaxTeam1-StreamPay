@@ -12,7 +12,7 @@ import { useWallet } from '../hooks/useWallet';
 
 export const ProviderOnboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { registerProvider, createPlan, isLoading } = useStreamPayContract();
+  const { registerProvider, createPlan } = useStreamPayContract();
   const { isConnected, address } = useWallet();
   
   const [formData, setFormData] = useState({
@@ -216,7 +216,6 @@ export const ProviderOnboarding: React.FC = () => {
                 type="submit"
                 size="lg"
                 className="w-full"
-                isLoading={isLoading}
               >
                 Create Provider Account & Plan
               </Button>

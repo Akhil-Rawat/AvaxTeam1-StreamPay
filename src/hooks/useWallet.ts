@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { ethers } from 'ethers';
 
 // Simplified wallet connection hook
 // In production, this would use Wagmi/RainbowKit
@@ -17,22 +18,29 @@ export const useWallet = () => {
     }
   }, []);
 
-  const connectWallet = async () => {
-    setIsConnecting(true);
-    try {
-      // Simulate wallet connection
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const mockAddress = '0x742d35Cc6676C0532925a3b8D926AD3e9c5bFe37';
-      setAddress(mockAddress);
-      setIsConnected(true);
-      localStorage.setItem('walletAddress', mockAddress);
-      toast.success('Wallet connected successfully!');
-    } catch (error) {
-      toast.error('Failed to connect wallet');
-    } finally {
-      setIsConnecting(false);
-    }
-  };
+const connectWallet = async () => {
+  setIsConnecting(true);
+  try {
+    if (!window.ethereum) throw new Error("No wallet found");
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = await provider.getSigner();
+    const walletAddress = await signer.getAddress();
+
+    setAddress(walletAddress);
+    setIsConnected(true);
+    localStorage.setItem("walletAddress", walletAddress);
+
+    toast.success("Wallet connected successfully!");
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to connect wallet");
+  } finally {
+    setIsConnecting(false);
+  }
+};
+
 
   const disconnectWallet = () => {
     setAddress(null);
