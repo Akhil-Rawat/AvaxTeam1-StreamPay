@@ -1,4 +1,4 @@
-# StreamPay - Web3 Subscription Payments Platform ( Drop To Bottom for Manual Smart Contract Testing ) 
+# StreamPay - Web3 Subscription Payments Platform   ( Drop To Bottom for Manual Smart Contract Testing ) 
 
 A modern, minimal React frontend for managing trustless recurring payments on Web3.
 
@@ -143,4 +143,85 @@ VITE_WALLET_CONNECT_PROJECT_ID=...
 
 The platform is designed to be production-ready with minimal additional configuration once integrated with your smart contracts and backend services.
 
+# Automation Script using smart contract :
 
+### Step 1: Initialize Contract (Already Done ✅)
+```bash
+# Initialize the contract - only needed once
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "initialize()" --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 2: Register as Provider (Already Done ✅)
+```bash
+# Register yourself as a service provider
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "registerProvider(string)" "MyProvider" --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 3: Create Plans (Already Done ✅)
+```bash
+# Plan 1: 0.001 ETH every 60 seconds (for testing)
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "createPlan(uint256,uint256,string)" 1000000000000000 60 "test-plan-60sec" --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+
+# Plan 2: 0.01 ETH every 30 days (monthly)
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "createPlan(uint256,uint256,string)" 10000000000000000 2592000 "monthly-plan" --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 4: Check Available Plans
+```bash
+# See all available subscription plans
+cast call 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "getPlans()" --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 5: Deposit Funds to Escrow
+```bash
+# Deposit 0.015 ETH to your escrow balance (enough for 15 payments of Plan 1)
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "deposit()" --value 15000000000000000 --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 6: Check Your Balance
+```bash
+# Check how much you have in escrow
+cast call 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "getUserBalance(address)" YOUR_WALLET_ADDRESS --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 7: Subscribe to Plan 1 (60-second interval)
+```bash
+# Subscribe to Plan 1 - this auto-pays the first payment
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "subscribe(uint256)" 1 --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+### Step 8 : Automation -  Go to Gelato UI https://app.gelato.cloud/dashboard 
+```bash
+Connect Wallet 
+Go to More -> Functions -> New -> Time Interval -> 30 seconds -> Transactions -> Contract Adress:0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B -> CustomABI json file(in our repo) -> ProcessSubscriptionPayment(uint256) -> Subscription_id = 3 (because 1 and 2 already registered in our contract ) -> enter task name and ->create -> Automation started :> 
+
+```
+
+### Step 9: Check Balance After Payments
+```bash
+# See your remaining escrow balance after payments
+cast call 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "getUserBalance(address)" YOUR_WALLET_ADDRESS --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+### Step 10: Withdraw Remaining Funds
+```bash
+# Withdraw 0.005 ETH from your escrow balance
+cast send 0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B "withdraw(uint256)" 5000000000000000 --private-key YOUR_PRIVATE_KEY --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+```
+
+## 📊 Current Test Status
+
+✅ **Active Subscription**: ID `2` (60-second plan)  
+✅ **Test Wallet**: `0xB6041EF165C65260f03C1D114fCc36e37971958C`  
+✅ **Plan 1**: 0.001 ETH every 60 seconds  
+✅ **Next Payment**: Every 60 seconds after last payment  
+
+## 🔄 Testing Recurring Payments
+
+To test the recurring payment system:
+
+1. **Subscribe** (Step 7) - First payment happens automatically
+2. **Wait 60+ seconds**
+3. **Process Payment** (Step 8) - Second payment  
+4. **Wait 60+ seconds**
+5. **Process Payment** (Step 8) - Third payment
+6. **Repeat** until balance runs out
