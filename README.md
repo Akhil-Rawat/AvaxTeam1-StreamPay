@@ -1,4 +1,4 @@
-# StreamPay - Web3 Subscription Payments Platform
+# StreamPay - Web3 Subscription Payments Platform ( Drop To Bottom for Manual Smart Contract Testing ) 
 
 A modern, minimal React frontend for managing trustless recurring payments on Web3.
 
@@ -142,3 +142,5 @@ VITE_WALLET_CONNECT_PROJECT_ID=...
 - **Responsive**: Mobile-first design with proper breakpoints
 
 The platform is designed to be production-ready with minimal additional configuration once integrated with your smart contracts and backend services.
+
+
