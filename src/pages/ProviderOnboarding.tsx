@@ -1,53 +1,57 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Select } from '../components/ui/Select';
-import { Card, CardContent, CardHeader } from '../components/ui/Card';
-import { useStreamPayContract } from '../hooks/useContract';
-import { mockApi } from '../services/mockApi';
-import { useWallet } from '../hooks/useWallet';
-
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import { Select } from "../components/ui/Select";
+import { Card, CardContent, CardHeader } from "../components/ui/Card";
+import { useStreamPayContract } from "../hooks/useContract";
+import { mockApi } from "../services/mockApi";
+import { useWallet } from "../hooks/useWallet";
 
 export const ProviderOnboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { registerProvider, createPlan } = useStreamPayContract();
+  const { registerProvider, createPlan, isProviderRegistered } =
+    useStreamPayContract();
   const { isConnected, address } = useWallet();
-  
+  const [alreadyRegistered, setAlreadyRegistered] = useState<boolean>(false);
+  const [checkingRegistration, setCheckingRegistration] =
+    useState<boolean>(true);
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    planName: '',
-    planDescription: '',
-    price: '',
-    interval: 'monthly' as 'monthly' | 'yearly',
+    name: "",
+    email: "",
+    planName: "",
+    planDescription: "",
+    price: "",
+    interval: "monthly" as "monthly" | "yearly",
   });
 
   const intervalSeconds =
-  formData.interval === 'monthly' ? 30 * 24 * 60 * 60 : 365 * 24 * 60 * 60;
-
+    formData.interval === "monthly" ? 30 * 24 * 60 * 60 : 365 * 24 * 60 * 60;
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) newErrors.name = 'Provider name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    if (!formData.planName.trim()) newErrors.planName = 'Plan name is required';
-    if (!formData.planDescription.trim()) newErrors.planDescription = 'Plan description is required';
-    if (!formData.price.trim()) newErrors.price = 'Price is required';
+    if (!formData.name.trim()) newErrors.name = "Provider name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Email is invalid";
+    if (!formData.planName.trim()) newErrors.planName = "Plan name is required";
+    if (!formData.planDescription.trim())
+      newErrors.planDescription = "Plan description is required";
+    if (!formData.price.trim()) newErrors.price = "Price is required";
     if (isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
-      newErrors.price = 'Price must be a valid positive number';
+      newErrors.price = "Price must be a valid positive number";
     }
 
     setErrors(newErrors);
@@ -56,29 +60,36 @@ export const ProviderOnboarding: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isConnected) {
-      setErrors({ general: 'Please connect your wallet first' });
+      setErrors({ general: "Please connect your wallet first" });
       return;
     }
 
     if (!validateForm()) return;
 
     try {
+      console.log("🚀 Starting provider registration process...");
+      setErrors({});
 
-      await registerProvider(formData.name);
+      // Step 1: Register provider on blockchain FIRST
+      console.log("📝 Step 1: Registering provider on blockchain...");
+      const registerTx = await registerProvider(formData.name);
+      console.log("✅ Provider registered on blockchain:", registerTx.hash);
 
-      // Create provider
+      // Step 2: Create plan on blockchain
+      console.log("📝 Step 2: Creating plan on blockchain...");
+      const planTx = await createPlan(formData.price, intervalSeconds, "");
+      console.log("✅ Plan created on blockchain:", planTx.transactionHash);
+
+      // Step 3: Only after blockchain success, save to mock API for UI purposes
+      console.log("📝 Step 3: Saving metadata to local API...");
       const provider = await mockApi.createProvider({
         name: formData.name,
         email: formData.email,
         walletAddress: address!,
       });
 
-      // Create plan on-chain (placeholder)
-      await createPlan(formData.price, intervalSeconds, '');
-
-      // Save plan metadata to mock API
       await mockApi.createPlan({
         providerId: provider.id,
         providerName: formData.name,
@@ -89,15 +100,28 @@ export const ProviderOnboarding: React.FC = () => {
         isActive: true,
       });
 
-      navigate('/provider');
-    } catch (error) {
-      setErrors({ general: 'Failed to create provider account. Please try again.' });
+      console.log("🎉 Provider registration complete!");
+      navigate("/provider");
+    } catch (error: any) {
+      console.error("❌ Provider registration failed:", error);
+
+      let errorMessage = "Failed to create provider account. Please try again.";
+      if (error.reason) {
+        errorMessage = error.reason;
+      } else if (error.message?.includes("user rejected")) {
+        errorMessage =
+          "Transaction was rejected. Please try again and approve the transaction.";
+      } else if (error.message?.includes("insufficient funds")) {
+        errorMessage = "Insufficient funds for transaction.";
+      }
+
+      setErrors({ general: errorMessage });
     }
   };
 
   const intervalOptions = [
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'yearly', label: 'Yearly' },
+    { value: "monthly", label: "Monthly" },
+    { value: "yearly", label: "Yearly" },
   ];
 
   if (!isConnected) {
@@ -112,7 +136,7 @@ export const ProviderOnboarding: React.FC = () => {
               <p className="text-gray-600 mb-6">
                 Please connect your wallet to register as a provider.
               </p>
-              <Button onClick={() => navigate('/')} variant="outline">
+              <Button onClick={() => navigate("/")} variant="outline">
                 Go Back to Home
               </Button>
             </div>
@@ -126,7 +150,7 @@ export const ProviderOnboarding: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -135,12 +159,15 @@ export const ProviderOnboarding: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <h1 className="text-2xl font-bold text-gray-900">Register as Provider</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Register as Provider
+            </h1>
             <p className="text-gray-600 mt-2">
-              Create your provider account and set up your first subscription plan.
+              Create your provider account and set up your first subscription
+              plan.
             </p>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.general && (
@@ -153,7 +180,7 @@ export const ProviderOnboarding: React.FC = () => {
                 <Input
                   label="Provider Name"
                   value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   error={errors.name}
                   placeholder="Your Company Name"
                 />
@@ -161,37 +188,45 @@ export const ProviderOnboarding: React.FC = () => {
                   label="Email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   error={errors.email}
                   placeholder="contact@company.com"
                 />
               </div>
 
               <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Create Your First Plan</h3>
-                
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Create Your First Plan
+                </h3>
+
                 <div className="space-y-4">
                   <Input
                     label="Plan Name"
                     value={formData.planName}
-                    onChange={(e) => handleInputChange('planName', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("planName", e.target.value)
+                    }
                     error={errors.planName}
                     placeholder="Premium Access"
                   />
-                  
+
                   <Input
                     label="Plan Description"
                     value={formData.planDescription}
-                    onChange={(e) => handleInputChange('planDescription', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("planDescription", e.target.value)
+                    }
                     error={errors.planDescription}
                     placeholder="Describe what subscribers will get..."
                   />
-                  
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <Input
                       label="Price (ETH)"
                       value={formData.price}
-                      onChange={(e) => handleInputChange('price', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("price", e.target.value)
+                      }
                       error={errors.price}
                       placeholder="0.05"
                       step="0.001"
@@ -199,7 +234,9 @@ export const ProviderOnboarding: React.FC = () => {
                     <Select
                       label="Billing Interval"
                       value={formData.interval}
-                      onChange={(e) => handleInputChange('interval', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("interval", e.target.value)
+                      }
                       options={intervalOptions}
                     />
                   </div>
@@ -208,15 +245,12 @@ export const ProviderOnboarding: React.FC = () => {
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>Connected Wallet:</strong> {address?.slice(0, 6)}...{address?.slice(-4)}
+                  <strong>Connected Wallet:</strong> {address?.slice(0, 6)}...
+                  {address?.slice(-4)}
                 </p>
               </div>
 
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-              >
+              <Button type="submit" size="lg" className="w-full">
                 Create Provider Account & Plan
               </Button>
             </form>

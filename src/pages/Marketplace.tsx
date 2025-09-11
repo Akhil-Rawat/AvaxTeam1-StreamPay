@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter } from 'lucide-react';
-import { PlanCard } from '../components/PlanCard';
-import { Input } from '../components/ui/Input';
-import { Button } from '../components/ui/Button';
-import { useStreamPayContract } from '../hooks/useContract';
-import { mockApi } from '../services/mockApi';
-import { Plan } from '../types';
-import { useWallet } from '../hooks/useWallet';
+import React, { useState, useEffect } from "react";
+import { Search, Filter } from "lucide-react";
+import { PlanCard } from "../components/PlanCard";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { useStreamPayContract } from "../hooks/useContract";
+import { mockApi } from "../services/mockApi";
+import { Plan } from "../types";
+import { useWallet } from "../hooks/useWallet";
 
 export const Marketplace: React.FC = () => {
   const { subscribe, isLoading } = useStreamPayContract();
   const { isConnected } = useWallet();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<Plan[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [loadingPlans, setLoadingPlans] = useState(true);
 
   useEffect(() => {
     const fetchPlans = async () => {
       try {
         const allPlans = await mockApi.getPlans();
-        const activePlans = allPlans.filter(plan => plan.isActive);
+        const activePlans = allPlans.filter((plan) => plan.isActive);
         setPlans(activePlans);
         setFilteredPlans(activePlans);
       } catch (error) {
-        console.error('Failed to fetch plans:', error);
+        console.error("Failed to fetch plans:", error);
       } finally {
         setLoadingPlans(false);
       }
@@ -34,27 +34,33 @@ export const Marketplace: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = plans.filter(plan =>
-      plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plan.providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plan.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = plans.filter(
+      (plan) =>
+        plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        plan.providerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        plan.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredPlans(filtered);
   }, [searchTerm, plans]);
 
   const handleSubscribe = async (planId: string) => {
     if (!isConnected) {
-      alert('Please connect your wallet first');
+      alert("Please connect your wallet first");
       return;
     }
 
     try {
-      const plan = plans.find(p => p.id === planId);
+      const plan = plans.find((p) => p.id === planId);
       if (plan) {
-        await subscribe(plan.providerName, planId);
+        const result = await subscribe(planId, plan.price);
+        console.log("Subscription result:", result);
+        // You can store the subscription ID in state or localStorage if needed
+        if (result.subscriptionId) {
+          localStorage.setItem(`subscription_${planId}`, result.subscriptionId);
+        }
       }
     } catch (error) {
-      console.error('Failed to subscribe:', error);
+      console.error("Failed to subscribe:", error);
     }
   };
 
@@ -64,7 +70,9 @@ export const Marketplace: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Marketplace</h1>
-          <p className="text-gray-600">Discover and subscribe to amazing Web3 services</p>
+          <p className="text-gray-600">
+            Discover and subscribe to amazing Web3 services
+          </p>
         </div>
 
         {/* Search and Filters */}
@@ -98,16 +106,21 @@ export const Marketplace: React.FC = () => {
         {loadingPlans ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-gray-200 h-64 rounded-xl" />
+              <div
+                key={i}
+                className="animate-pulse bg-gray-200 h-64 rounded-xl"
+              />
             ))}
           </div>
         ) : filteredPlans.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-gray-500 text-lg mb-4">
-              {searchTerm ? 'No plans found matching your search' : 'No plans available'}
+              {searchTerm
+                ? "No plans found matching your search"
+                : "No plans available"}
             </p>
             {searchTerm && (
-              <Button variant="outline" onClick={() => setSearchTerm('')}>
+              <Button variant="outline" onClick={() => setSearchTerm("")}>
                 Clear Search
               </Button>
             )}

@@ -1,23 +1,30 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Wallet, Menu, X } from 'lucide-react';
-import { useWallet } from '../hooks/useWallet';
-import { useState } from 'react';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Wallet, Menu, X } from "lucide-react";
+import { useWallet } from "../hooks/useWallet";
+import { useState } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { isConnected, address, isConnecting, connectWallet, disconnectWallet } = useWallet();
+  const {
+    isConnected,
+    address,
+    isConnecting,
+    connectWallet,
+    disconnectWallet,
+  } = useWallet();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   const navigation = [
-    { name: 'Marketplace', href: '/marketplace' },
-    { name: 'My Subscriptions', href: '/subscriptions' },
-    { name: 'Wallet', href: '/wallet' },
-    { name: 'Provider Dashboard', href: '/provider' },
+    { name: "Marketplace", href: "/marketplace" },
+    { name: "My Subscriptions", href: "/subscriptions" },
+    { name: "Wallet", href: "/wallet" },
+    { name: "Provider Dashboard", href: "/provider" },
+    { name: "Test Page", href: "/test" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -44,8 +51,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   to={item.href}
                   className={`${
                     isActive(item.href)
-                      ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? "text-blue-600 border-b-2 border-blue-600"
+                      : "text-gray-500 hover:text-gray-900"
                   } px-3 py-2 text-sm font-medium transition-colors`}
                 >
                   {item.name}
@@ -74,7 +81,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 disabled:opacity-50"
                 >
                   <Wallet className="w-4 h-4" />
-                  <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
+                  <span>
+                    {isConnecting ? "Connecting..." : "Connect Wallet"}
+                  </span>
                 </button>
               )}
 
@@ -83,7 +92,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -99,8 +112,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`${
                       isActive(item.href)
-                        ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                     } block px-3 py-2 rounded-lg text-sm font-medium transition-colors`}
                   >
                     {item.name}
