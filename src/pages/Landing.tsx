@@ -45,7 +45,7 @@ export const Landing: React.FC = () => {
               Recurring Payments
             </span>
             <br />
-            on Web3
+            on Blockchain
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
