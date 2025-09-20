@@ -1,35 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { PlanCard } from "../components/PlanCard";
+import { WalletStatusCard } from "../components/WalletStatusCard";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
-import { useStreamPayContract } from "../hooks/useContract";
-import { mockApi } from "../services/mockApi";
-import { Plan } from "../types";
 import { useWallet } from "../hooks/useWallet";
+import { useStreamPayContract } from "../hooks/useContract";
+import toast from "react-hot-toast";
+
+const API_BASE_URL = "http://localhost:3001";
+
+interface Plan {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  interval: number;
+  providerAddress: string;
+  providerName: string;
+  onChainPlanId: number;
+  isActive: boolean;
+  createdAt: string;
+}
 
 export const Marketplace: React.FC = () => {
-  const { subscribe, isLoading } = useStreamPayContract();
-  const { isConnected } = useWallet();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<Plan[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loadingPlans, setLoadingPlans] = useState(true);
+  
+  const { isConnected } = useWallet();
+  const { subscribe, isLoading } = useStreamPayContract();
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const allPlans = await mockApi.getPlans();
-        const activePlans = allPlans.filter((plan) => plan.isActive);
-        setPlans(activePlans);
-        setFilteredPlans(activePlans);
-      } catch (error) {
-        console.error("Failed to fetch plans:", error);
-      } finally {
-        setLoadingPlans(false);
-      }
-    };
-
     fetchPlans();
   }, []);
 
@@ -43,24 +46,47 @@ export const Marketplace: React.FC = () => {
     setFilteredPlans(filtered);
   }, [searchTerm, plans]);
 
-  const handleSubscribe = async (planId: string) => {
+  const fetchPlans = async () => {
+    try {
+      console.log('🔄 Fetching plans from:', `${API_BASE_URL}/plans`);
+      setLoadingPlans(true);
+      const response = await fetch(`${API_BASE_URL}/plans`);
+      console.log('📡 Response status:', response.status);
+      
+      const data = await response.json();
+      console.log('📊 Plans data received:', data);
+      
+      if (data.success) {
+        console.log(`✅ Loaded ${data.plans.length} plans`);
+        setPlans(data.plans);
+        setFilteredPlans(data.plans);
+      } else {
+        console.error('❌ Plans API returned error:', data);
+        toast.error("Failed to load plans from API");
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch plans:", error);
+      toast.error("Failed to load marketplace");
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  const handleSubscribe = async (plan: Plan) => {
     if (!isConnected) {
-      alert("Please connect your wallet first");
+      toast.error("Please connect your wallet first");
       return;
     }
 
     try {
-      const plan = plans.find((p) => p.id === planId);
-      if (plan) {
-        const result = await subscribe(planId, plan.price);
-        console.log("Subscription result:", result);
-        // You can store the subscription ID in state or localStorage if needed
-        if (result.subscriptionId) {
-          localStorage.setItem(`subscription_${planId}`, result.subscriptionId);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to subscribe:", error);
+      // Use the subscribe function from the contract hook
+      await subscribe(plan.onChainPlanId.toString(), plan.price.toString());
+      
+      toast.success(`Successfully subscribed to ${plan.name}!`);
+      
+    } catch (error: any) {
+      console.error("Subscription error:", error);
+      toast.error(error?.message || "Failed to subscribe");
     }
   };
 
@@ -74,6 +100,9 @@ export const Marketplace: React.FC = () => {
             Discover and subscribe to amazing Web3 services
           </p>
         </div>
+
+        {/* Wallet Status */}
+        <WalletStatusCard className="mb-8" />
 
         {/* Search and Filters */}
         <div className="mb-8">
@@ -129,9 +158,23 @@ export const Marketplace: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPlans.map((plan) => (
               <PlanCard
-                key={plan.id}
-                plan={plan}
-                onSubscribe={handleSubscribe}
+                key={plan._id}
+                plan={{
+                  id: plan._id,
+                  name: plan.name,
+                  description: plan.description,
+                  price: plan.price.toString(),
+                  interval: "monthly", // Simplified for now
+                  providerId: plan.providerAddress,
+                  providerName: plan.providerName || "Unknown Provider",
+                  subscriberCount: 0,
+                  isActive: plan.isActive,
+                  createdAt: plan.createdAt || new Date().toISOString()
+                }}
+                onSubscribe={(planId: string) => {
+                  const planToSubscribe = filteredPlans.find(p => p._id === planId);
+                  if (planToSubscribe) handleSubscribe(planToSubscribe);
+                }}
                 isLoading={isLoading}
               />
             ))}

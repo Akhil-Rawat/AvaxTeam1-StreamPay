@@ -38,7 +38,7 @@ export const useStreamPayContract = () => {
     if (network.chainId !== BigInt(CONTRACT_CONFIG.NETWORK_ID)) {
       console.log("🔄 Wrong network detected, attempting to switch...");
       try {
-        // Try to switch to Arbitrum Sepolia
+        // Try to switch to Avalanche Fuji
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: `0x${CONTRACT_CONFIG.NETWORK_ID.toString(16)}` }], // Convert to hex
@@ -55,35 +55,35 @@ export const useStreamPayContract = () => {
       } catch (switchError: any) {
         if (switchError.code === 4902) {
           // Network not added to MetaMask, let's add it
-          console.log("🔧 Network not found, adding Arbitrum Sepolia...");
+          console.log("🔧 Network not found, adding Avalanche Fuji...");
           try {
             await window.ethereum.request({
               method: "wallet_addEthereumChain",
               params: [
                 {
                   chainId: `0x${CONTRACT_CONFIG.NETWORK_ID.toString(16)}`,
-                  chainName: "Arbitrum Sepolia",
+                  chainName: "Avalanche Fuji Testnet",
                   nativeCurrency: {
-                    name: "ETH",
-                    symbol: "ETH",
+                    name: "AVAX",
+                    symbol: "AVAX",
                     decimals: 18,
                   },
                   rpcUrls: [CONTRACT_CONFIG.NETWORK_RPC_URL],
-                  blockExplorerUrls: ["https://sepolia.arbiscan.io"],
+                  blockExplorerUrls: ["https://testnet.snowtrace.io"],
                 },
               ],
             });
-            console.log("✅ Arbitrum Sepolia network added and switched");
+            console.log("✅ Avalanche Fuji network added and switched");
           } catch (addError) {
             console.error("❌ Failed to add network:", addError);
             throw new Error(
-              "Please manually add Arbitrum Sepolia network to MetaMask"
+              "Please manually add Avalanche Fuji network to MetaMask"
             );
           }
         } else {
           console.error("❌ Failed to switch network:", switchError);
           throw new Error(
-            `Please switch to Arbitrum Sepolia (Chain ID: ${CONTRACT_CONFIG.NETWORK_ID}) in MetaMask`
+            `Please switch to Avalanche Fuji (Chain ID: ${CONTRACT_CONFIG.NETWORK_ID}) in MetaMask`
           );
         }
       }
@@ -449,7 +449,7 @@ export const useStreamPayContract = () => {
   // Get plan details by ID (you might need to add view functions to your contract)
   const getPlanDetails = async (planId: string) => {
     try {
-      const contract = await getContract();
+      await getContract(); // Contract instance for future use
       // These would need to be added to your contract as view functions
       // For now, we'll return mock data but you should add these to the contract:
       // function getPlanProvider(uint256 planId) external view returns (address)
