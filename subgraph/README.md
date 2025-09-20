@@ -1,13 +1,13 @@
 # StreamPay GraphQL Subgraph
 
 ## 🚀 Overview
-GraphQL subgraph for StreamPay provider analytics and transaction tracking.
+GraphQL subgraph for StreamPay provider analytics and transaction tracking on Avalanche.
 
 ## 📋 Subgraph Details
-- **Network**: Arbitrum Sepolia
-- **Contract**: `0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B`
-- **Version**: v0.0.4
-- **Studio**: The Graph Studio
+- **Network**: Avalanche Fuji Testnet
+- **Contract**: `0x08006F413fbb555eFfcc9A27e9A01980B0e42207`
+- **Version**: v1.0.0 (Avalanche)
+- **Language**: Solidity (via Foundry)
 
 ## 🔧 Provider Analytics Features
 ### 📊 Real-time Tracking

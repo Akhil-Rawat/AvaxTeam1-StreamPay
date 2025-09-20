@@ -1,8 +1,8 @@
 {
-  "arbitrum-sepolia": {
-    "SubscriptionEscrow": {
-      "address": "0x403db7aedf27c8f4e59c05656673cec64ea5fb20",
-      "startBlock": 191531406
+  "avalanche": {
+    "StreamPay": {
+      "address": "0x08006F413fbb555eFfcc9A27e9A01980B0e42207",
+      "startBlock": 36080000
     }
   }
 }

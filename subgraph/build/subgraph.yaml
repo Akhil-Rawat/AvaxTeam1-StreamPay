@@ -5,12 +5,12 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum
-    name: SubscriptionEscrow
-    network: arbitrum-sepolia
+    name: StreamPay
+    network: avalanche
     source:
-      address: "0xe65365Ea1cfb28dafD5fF6246a2E2A124A13093B"
-      abi: SubscriptionEscrow
-      startBlock: 191825000
+      address: "0x08006F413fbb555eFfcc9A27e9A01980B0e42207"
+      abi: StreamPay
+      startBlock: 46169380
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -24,8 +24,8 @@ dataSources:
         - GlobalStats
         - DailyMetric
       abis:
-        - name: SubscriptionEscrow
-          file: SubscriptionEscrow/SubscriptionEscrow.json
+        - name: StreamPay
+          file: StreamPay/StreamPay.json
       eventHandlers:
         - event: ProviderRegistered(indexed address,string)
           handler: handleProviderRegistered
@@ -37,4 +37,8 @@ dataSources:
           handler: handlePaymentProcessed
         - event: ProviderEarnings(indexed address,indexed uint256,uint256)
           handler: handleProviderEarnings
-      file: SubscriptionEscrow/SubscriptionEscrow.wasm
+        - event: EscrowDeposit(indexed address,uint256,uint256)
+          handler: handleEscrowDeposit
+        - event: EscrowWithdrawal(indexed address,uint256,uint256)
+          handler: handleEscrowWithdrawal
+      file: StreamPay/StreamPay.wasm
