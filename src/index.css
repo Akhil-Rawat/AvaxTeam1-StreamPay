@@ -66,3 +66,64 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom StreamPay Styles */
+@layer components {
+  .gradient-bg {
+    @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1;
+  }
+  
+  .glow-button {
+    @apply relative overflow-hidden transition-all duration-300;
+  }
+  
+  .glow-button::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 transition-opacity duration-300;
+  }
+  
+  .glow-button:hover::before {
+    @apply opacity-20;
+  }
+  
+  .floating-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  
+  .shimmer::before {
+    content: '';
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    animation: shimmer 2s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
