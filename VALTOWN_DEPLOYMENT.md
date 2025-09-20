@@ -19,11 +19,11 @@ The `valtown-cron.ts` script runs every minute to automatically process due subs
 ### 1. Copy the Script
 Copy the contents of `valtown-cron.ts` to a new Val.town script.
 
-### 2. Set Up Secrets
+### 2. Set Up Environment Variables
 In your Val.town dashboard:
-1. Go to your account settings
-2. Navigate to "Secrets"
-3. Add a new secret:
+1. Go to your val's settings (left sidebar)
+2. Navigate to "Environment Variables"
+3. Add a new environment variable:
    - **Key**: `PRIVATE_KEY`
    - **Value**: Your wallet's private key (the one with permissions to call the contract)
 
@@ -39,15 +39,12 @@ In your Val.town dashboard:
 
 ## Script Improvements Applied
 
-### ✅ Updated Secrets API
+### ✅ Current Environment Variables API
 ```typescript
-// Old (deprecated)
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-
-// New (Val.town current)
-const privateKey = await secrets("PRIVATE_KEY");
-const wallet = new ethers.Wallet(privateKey, provider);
+// Val.town supports both approaches:
+const privateKey = process.env.PRIVATE_KEY || Deno.env.get("PRIVATE_KEY");
 ```
+*Note: Neither `process.env` nor `Deno.env` is deprecated - both work in Val.town*
 
 ### ✅ Optimized Gas Settings
 ```typescript
@@ -99,7 +96,7 @@ Each cron job execution will return a summary like:
 ## Troubleshooting
 
 ### Common Issues
-1. **"PRIVATE_KEY not found"**: Ensure you've added the secret in Val.town settings
+1. **"PRIVATE_KEY not found"**: Ensure you've added the environment variable in your val's settings
 2. **Gas estimation failed**: Network congestion, try manual gas settings
 3. **"insufficient funds"**: User's escrow balance is too low
 4. **"Not due"**: Payment timing check - subscription not ready yet
@@ -110,7 +107,7 @@ Each cron job execution will return a summary like:
 - Monitor for recurring error patterns
 
 ## Security Notes
-- Private key is stored securely in Val.town secrets
+- Private key is stored securely in Val.town environment variables
 - Script only has permission to call `processSubscriptionPayment`
 - No direct fund handling - contract manages all escrow
 

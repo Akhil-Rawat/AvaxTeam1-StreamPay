@@ -1,9 +1,8 @@
 // @cron * * * * *
 // StreamPay Recurring Payments Processor - Runs every minute on Val.town
-// Deploy this script to Val.town and add your PRIVATE_KEY to secrets
+// Deploy this script to Val.town and add your PRIVATE_KEY to environment variables
 
 import { ethers } from "npm:ethers@6.8.0";
-import { secrets } from "valtown";
 
 // Contract configuration
 const CONTRACT_ADDRESS = "0x08006F413fbb555eFfcc9A27e9A01980B0e42207";
@@ -576,7 +575,7 @@ const CONTRACT_ABI = [
  * 
  * Setup Instructions:
  * 1. Deploy this script to Val.town
- * 2. Add PRIVATE_KEY to your Val.town secrets
+ * 2. Add PRIVATE_KEY to your Val.town environment variables
  * 3. The script will automatically run every minute
  * 
  * @returns {Object} Processing results with success status and metrics
@@ -586,10 +585,10 @@ export default async function handler() {
   console.log(`🚀 StreamPay Payment Processor started at ${new Date().toISOString()}`);
   
   try {
-    // Get private key from Val.town secrets
-    const privateKey = await secrets("PRIVATE_KEY");
+    // Get private key from Val.town environment variables
+    const privateKey = process.env.PRIVATE_KEY || Deno.env.get("PRIVATE_KEY");
     if (!privateKey) {
-      throw new Error("❌ PRIVATE_KEY not found in Val.town secrets");
+      throw new Error("❌ PRIVATE_KEY not found in environment variables");
     }
 
     // Initialize ethers provider and wallet
