@@ -1,0 +1,24 @@
+{
+  "name": "streampay",
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_CONTRACT_ADDRESS": "0x08006F413fbb555eFfcc9A27e9A01980B0e42207",
+    "VITE_AVALANCHE_RPC_URL": "https://api.avax-test.network/ext/bc/C/rpc"
+  },
+  "build": {
+    "env": {
+      "VITE_CONTRACT_ADDRESS": "0x08006F413fbb555eFfcc9A27e9A01980B0e42207",
+      "VITE_AVALANCHE_RPC_URL": "https://api.avax-test.network/ext/bc/C/rpc"
+    }
+  }
+}
