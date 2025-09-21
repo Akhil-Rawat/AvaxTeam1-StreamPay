@@ -1,67 +1,198 @@
-## Foundry
+# StreamPay
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**Trustless recurring payments on blockchain**
 
-Foundry consists of:
+StreamPay revolutionizes subscription payments by leveraging smart contracts for secure, automated, and transparent recurring transactions. Built for creators, businesses, and developers who want to escape traditional payment processor limitations.
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## 🌟 Features
 
-## Documentation
+- **Trustless Escrow**: Smart contract-based payment security
+- **No Chargebacks**: Immutable blockchain transactions
+- **Lower Fees**: Direct peer-to-peer payments without intermediaries
+- **Global Access**: Accept payments from anywhere in the world
+- **Real-time Analytics**: Track earnings and subscriber metrics
+- **Instant Settlement**: Payments processed directly on-chain
 
-https://book.getfoundry.sh/
+## 🚀 Quick Start
 
-## Usage
+### Prerequisites
 
-### Build
+- Node.js 16+
+- MetaMask or compatible Web3 wallet
+- Avalanche Fuji testnet AVAX
 
-```shell
-$ forge build
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Akhil-Rawat/AvaxTeam1-StreamPay.git
+cd AvaxTeam1-StreamPay/StreamPay-arbitrum
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
 ```
 
-### Test
+### Backend Setup
 
-```shell
-$ forge test
+```bash
+# Navigate to backend directory
+cd backend
+
+# Install backend dependencies
+npm install
+
+# Start the API server
+npm start
 ```
 
-### Format
+## 🏗️ Architecture
 
-```shell
-$ forge fmt
+**Frontend**: React + TypeScript + Vite + Tailwind CSS  
+**Backend**: Node.js + Express + MongoDB  
+**Blockchain**: Avalanche Fuji Testnet  
+**Smart Contracts**: Solidity + Foundry  
+
+### Smart Contract
+
+Deployed on Avalanche Fuji: `0x08006F413fbb555eFfcc9A27e9A01980B0e42207`
+
+## 🎯 How It Works
+
+### For Providers
+1. Connect your wallet and register as a provider
+2. Create subscription plans with custom pricing
+3. Share your plans with subscribers
+4. Receive automatic payments through escrow
+
+### For Subscribers
+1. Browse available subscription plans
+2. Deposit AVAX into the secure escrow contract
+3. Subscribe to plans with one-click transactions
+4. Manage your subscriptions through the dashboard
+
+## 🛠️ Development
+
+### Smart Contract Development
+
+```bash
+# Compile contracts
+forge build
+
+# Run tests
+forge test
+
+# Deploy to testnet
+forge script script/Deploy.s.sol --rpc-url $AVALANCHE_FUJI_RPC --private-key $PRIVATE_KEY --broadcast
 ```
 
-### Gas Snapshots
+### Frontend Development
 
-```shell
-$ forge snapshot
+```bash
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-### Anvil
+## 📁 Project Structure
 
-```shell
-$ anvil
+```
+StreamPay-arbitrum/
+├── src/                    # Frontend source code
+│   ├── components/         # React components
+│   ├── pages/             # Application pages
+│   ├── hooks/             # Custom React hooks
+│   └── contracts/         # Contract configurations
+├── backend/               # Express.js API server
+├── contracts/             # Smart contract source
+├── script/                # Deployment scripts
+└── subgraph/             # The Graph protocol integration
 ```
 
-### Deploy
+## 🌐 Live Demo
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3001
+- **Contract**: [View on SnowTrace](https://testnet.snowtrace.io/address/0x08006F413fbb555eFfcc9A27e9A01980B0e42207)
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create `.env` file in the root directory:
+
+```env
+VITE_CONTRACT_ADDRESS=0x08006F413fbb555eFfcc9A27e9A01980B0e42207
+VITE_AVALANCHE_RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
+MONGODB_URI=your_mongodb_connection_string
 ```
 
-### Cast
+### Network Configuration
 
-```shell
-$ cast <subcommand>
+The application is configured for Avalanche Fuji testnet:
+- **Network Name**: Avalanche Fuji C-Chain
+- **RPC URL**: https://api.avax-test.network/ext/bc/C/rpc
+- **Chain ID**: 43113
+- **Symbol**: AVAX
+
+## 🎨 UI Components
+
+Built with modern Web3 design principles:
+- Gradient backgrounds and animations
+- Interactive hover effects
+- Responsive design for all devices
+- shadcn/ui component library
+- Tailwind CSS for styling
+
+## 🧪 Testing
+
+```bash
+# Run smart contract tests
+forge test
+
+# Run frontend tests
+npm test
+
+# Test API endpoints
+npm run test:api
 ```
 
-### Help
+## 📊 Analytics
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
-# AvaxTeam1-StreamPay
+The platform includes comprehensive analytics:
+- Provider earnings tracking
+- Subscriber metrics
+- Payment history
+- Plan performance insights
+
+## 🔐 Security
+
+- Smart contract audited for common vulnerabilities
+- Escrow-based payment protection
+- No custody of user funds
+- Open source and verifiable
+
+## 🤝 Contributing
+
+We welcome contributions! Please read our contributing guidelines and submit pull requests for any improvements.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Documentation](docs/)
+- [Smart Contract](https://testnet.snowtrace.io/address/0x08006F413fbb555eFfcc9A27e9A01980B0e42207)
+- [Demo Video](https://example.com)
+
+---
+
+**Built with ❤️ for the decentralized future**
