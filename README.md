@@ -1,3 +1,8 @@
+# project demo proofs (on avalanche fuji c chain ) 
+<img width="1754" height="769" alt="Screenshot 2025-09-21 212914" src="https://github.com/user-attachments/assets/25eb9735-206e-47c2-99f0-3f243d326443" />
+<img width="1918" height="895" alt="Screenshot 2025-09-20 221208" src="https://github.com/user-attachments/assets/66d653c6-7cb8-426d-83dc-d24b005fe47b" />
+
+
 # StreamPay
 
 **Trustless recurring payments on blockchain**
